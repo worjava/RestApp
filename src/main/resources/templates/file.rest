@@ -1,1 +1,11 @@
 localhost:8080/user
+
+
+{
+firstname: "IGOR",
+lastname:"IVANOV",
+email:"igor@yandex.ru"
+age: 25
+
+}
+

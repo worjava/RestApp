@@ -36,6 +36,12 @@ public class UserService {
        enrichUser(user);
         userRepository.save(user);
     }
+    @Transactional
+    public void delete(User user) {
+
+        userRepository.delete(user);
+    }
+
 
     private void enrichUser(User user) {
         user.setCreatedAt(LocalDateTime.now());

@@ -27,7 +27,8 @@ public class UserController { // возвращть список объекто�
 
     @Autowired
     public UserController(UserService userService, ModelMapper modelMapper) {
-        this.userService = userService; this.modelMapper = modelMapper;
+        this.userService = userService;
+        this.modelMapper = modelMapper;
     }
 
     @GetMapping
@@ -41,7 +42,7 @@ public class UserController { // возвращть список объекто�
         return convertToUserDto(userService.findOne(id)); // Jackson автоматически сконвертирует в JASON
     }
 
-    @PostMapping                        //принимаем JSON используем реквестбади сконвертирует в юзер
+    @PostMapping()                   //принимаем JSON используем реквестбади сконвертирует в юзер
     public ResponseEntity<HttpStatus> creat(@RequestBody @Valid UserDto user,
                                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -62,11 +63,34 @@ public class UserController { // возвращть список объекто�
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<HttpStatus> update(@PathVariable("id") int id, @RequestBody UserDto user,
+                                             BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new UserNotfoundException();
+        }
+
+            user.setId(id);
+        userService.save(convertToUser(user));
+
+
+        return ResponseEntity.ok(HttpStatus.OK);
+
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<HttpStatus> delete(@PathVariable("id") int id) {
+       User user1 = userService.findOne(id);
+
+        userService.delete(user1);
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
     private User convertToUser(UserDto userDto) {
 //        ModelMapper modelMapper = new ModelMapper();//скопирует и поместит все поля которые совпадают у классов
 
-   User user= modelMapper.map(userDto,User.class); // уменьшает код 1 параметр объект откуда копируем 2 параметра куда и что возвращаем
-       // User user = new User();
+        User user = modelMapper.map(userDto, User.class); // уменьшает код 1 параметр объект откуда копируем 2 параметра куда и что возвращаем
+      user.setId(userDto.getId());
+        // User user = new User();
         //        user.setFirstname(userDto.getFirstname());
 //        user.setLastname(userDto.getLastname());
 //        user.setAge(userDto.getAge());
@@ -75,10 +99,12 @@ public class UserController { // возвращть список объекто�
 
         return user;
     }
-private UserDto convertToUserDto(User user){
-        return modelMapper.map(user,UserDto.class);
 
-}
+    private UserDto convertToUserDto(User user) {
+        return modelMapper.map(user, UserDto.class);
+
+    }
+
 
     @ExceptionHandler    // конкретно ловит определенно исключение
     private ResponseEntity<UserErrorResponse> handleException(UserNotfoundException e) {//ловим собсвтенное исключение
